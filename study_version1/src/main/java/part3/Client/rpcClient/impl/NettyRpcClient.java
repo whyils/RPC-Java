@@ -8,10 +8,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
+import lombok.NoArgsConstructor;
 import part3.Client.netty.nettyInitializer.NettyClientInitializer;
 import part3.Client.rpcClient.RpcClient;
+import part3.Client.serviceCenter.ServiceCenter;
+import part3.Client.serviceCenter.impl.ZkServiceCenter;
 import part3.common.Message.RpcRequest;
 import part3.common.Message.RpcResponse;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author WYL
@@ -20,14 +25,12 @@ import part3.common.Message.RpcResponse;
  */
 public class NettyRpcClient implements RpcClient {
 
-    private String host;
-    private int port;
     private static final Bootstrap bootstarp;
     private static final EventLoopGroup eventLoopGroup;
+    private ServiceCenter serviceCenter;
 
-    public NettyRpcClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public NettyRpcClient() {
+        this.serviceCenter = new ZkServiceCenter();
     }
 
     static {
@@ -38,6 +41,10 @@ public class NettyRpcClient implements RpcClient {
 
     @Override
     public RpcResponse sentRequest(RpcRequest request) {
+
+        InetSocketAddress inetSocketAddress = serviceCenter.serviceDiscovery(request.getInterfaceName());
+        String host = inetSocketAddress.getHostName();
+        int port = inetSocketAddress.getPort();
 
         try {
             ChannelFuture channelFuture = bootstarp.connect(host, port).sync();
