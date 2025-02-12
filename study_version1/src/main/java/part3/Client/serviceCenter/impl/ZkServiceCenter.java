@@ -34,7 +34,7 @@ public class ZkServiceCenter implements ServiceCenter {
     public InetSocketAddress serviceDiscovery(String serviceName) {
 
         try {
-            List<String> forPath = this.clent.getChildren().forPath("/" + ROOT_PATH);
+            List<String> forPath = this.clent.getChildren().forPath("/" + serviceName);
             String path = forPath.get(0);
             InetSocketAddress inetSocketAddress = parseAddress(path);
             return inetSocketAddress;

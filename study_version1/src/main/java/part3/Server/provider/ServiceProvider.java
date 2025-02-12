@@ -1,6 +1,10 @@
 package part3.Server.provider;
 
 
+import part3.Server.serviceRegister.ServiceRegister;
+import part3.Server.serviceRegister.impl.ZkServiceRegister;
+
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +17,19 @@ public class ServiceProvider {
 
     private Map<String, Object> interfaceProvider;
 
+    private int port;
+    private String host;
+    private ServiceRegister serviceRegister;
+
     public ServiceProvider() {
         interfaceProvider = new HashMap<>();
+    }
+
+    public ServiceProvider(int port, String host) {
+        this.port = port;
+        this.host = host;
+        this.serviceRegister = new ZkServiceRegister();
+        this.interfaceProvider = new HashMap<>();
     }
 
     public void provideServiceInterface(Object server) {
@@ -23,6 +38,7 @@ public class ServiceProvider {
 
         for (Class<?> clazz : interfaces) {
             interfaceProvider.put(clazz.getName(), server);
+            serviceRegister.register(clazz.getName(), new InetSocketAddress(host, port));
         }
 
     }
