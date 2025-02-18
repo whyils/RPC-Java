@@ -1,7 +1,9 @@
 package part1.common.Message;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +12,8 @@ import java.io.Serializable;
  * @date 2025/2/7 15:57
  * @description: TODO
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 public class RpcResponse implements Serializable {
@@ -21,7 +25,7 @@ public class RpcResponse implements Serializable {
     private Object data;
 
     public static RpcResponse success(Object data) {
-        return RpcResponse.builder().code(200).data(data).build();
+        return RpcResponse.builder().dataType(data.getClass()).code(200).data(data).build();
     }
 
     public static RpcResponse fail() {

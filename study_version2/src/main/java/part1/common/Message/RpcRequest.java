@@ -1,7 +1,9 @@
 package part1.common.Message;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +12,8 @@ import java.io.Serializable;
  * @date 2025/2/7 15:52
  * @description: TODO
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 public class RpcRequest implements Serializable {
