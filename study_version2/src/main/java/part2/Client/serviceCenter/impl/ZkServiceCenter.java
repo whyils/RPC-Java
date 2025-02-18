@@ -5,7 +5,9 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import part2.Client.cache.ServiceCache;
 import part2.Client.serviceCenter.ServiceCenter;
+import part2.Client.serviceCenter.ZKWatcher.WatchZK;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -17,16 +19,21 @@ import java.util.List;
  */
 public class ZkServiceCenter implements ServiceCenter {
 
-    private CuratorFramework clent;
+    private CuratorFramework client;
     private static final String ROOT_PATH = "MyRPC";
+    private ServiceCache cache;
 
-    public ZkServiceCenter() {
+    public ZkServiceCenter() throws InterruptedException {
 
         RetryPolicy policy = new ExponentialBackoffRetry(1000, 3);
-        this.clent = CuratorFrameworkFactory.builder().connectString("127.0.0.1:2181")
+        this.client = CuratorFrameworkFactory.builder().connectString("127.0.0.1:2181")
                 .retryPolicy(policy).sessionTimeoutMs(40000).namespace(ROOT_PATH).build();
-        this.clent.start();
-        System.out.println("zk启动成功");
+        this.client.start();
+        System.out.println("zk连接成功");
+
+        this.cache = new ServiceCache();
+        WatchZK watchZK = new WatchZK(client, this.cache);
+        watchZK.watchToUpdate(ROOT_PATH);
 
     }
 
@@ -34,10 +41,13 @@ public class ZkServiceCenter implements ServiceCenter {
     public InetSocketAddress serviceDiscovery(String serviceName) {
 
         try {
-            List<String> forPath = this.clent.getChildren().forPath("/" + serviceName);
-            String path = forPath.get(0);
-            InetSocketAddress inetSocketAddress = parseAddress(path);
-            return inetSocketAddress;
+
+            List<String> serviceList = cache.getServiceByCache(serviceName);
+            if (serviceList.isEmpty()) {
+                serviceList = this.client.getChildren().forPath("/" + serviceName);
+            }
+            String service = serviceList.get(0);
+            return parseAddress(service);
         } catch (Exception e) {
             e.printStackTrace();
         }

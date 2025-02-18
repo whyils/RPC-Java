@@ -19,7 +19,7 @@ public class ClientProxy implements InvocationHandler {
 
     private RpcClient rpcClient;
 
-    public ClientProxy(String host, Integer port, int choose) {
+    public ClientProxy(String host, Integer port, int choose) throws InterruptedException {
 
         switch (choose) {
             case 0:
@@ -31,7 +31,7 @@ public class ClientProxy implements InvocationHandler {
         }
 
     }
-    public ClientProxy() {
+    public ClientProxy() throws InterruptedException {
         rpcClient = new NettyRpcClient();
     }
 
