@@ -15,8 +15,9 @@ public class MyDecoder extends ByteToMessageDecoder {
         // 读消息类型
         short messageType = in.readShort();
 
-        if (messageType != MessageType.REQUEST.getCode() || messageType != MessageType.RESPONSE.getCode()) {
+        if (messageType != MessageType.REQUEST.getCode() && messageType != MessageType.RESPONSE.getCode()) {
             System.out.println("暂时不支持相关类型");
+            throw new RuntimeException("暂时不支持相关类型");
         }
 
         // 获取序列化类型
@@ -32,7 +33,7 @@ public class MyDecoder extends ByteToMessageDecoder {
 
         in.readBytes(bytes);
 
-        Object deserializer = serializerByCode.deserializer(bytes, serializerType);
+        Object deserializer = serializerByCode.deserializer(bytes, messageType);
         out.add(deserializer);
 
     }
