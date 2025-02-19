@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ServiceCache {
 
-    public static Map<String, List<String>> cache = new HashMap<>();
+    private static Map<String, List<String>> cache = new HashMap<>();
 
     // 添加服务到本地缓存中
     public void addServiceToCache(String serviceName, String address) {
@@ -20,6 +20,7 @@ public class ServiceCache {
             List<String> addressList = new ArrayList<>();
             addressList.add(address);
             cache.put(serviceName, addressList);
+            System.out.println("第一次将name为" + serviceName + "和地址为" + address + "的服务添加到本地缓存");
         }
 
     }
@@ -40,8 +41,10 @@ public class ServiceCache {
     public List<String> getServiceByCache(String serviceName) {
 
         if (!cache.containsKey(serviceName)) {
+            System.out.println("本地缓存无 " + serviceName + "服务数据");
             return null;
         }
+        System.out.println("本地缓存有 " + serviceName + "服务数据");
         return cache.get(serviceName);
 
     }
