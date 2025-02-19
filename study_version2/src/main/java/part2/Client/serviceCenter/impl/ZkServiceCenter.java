@@ -43,7 +43,7 @@ public class ZkServiceCenter implements ServiceCenter {
         try {
 
             List<String> serviceList = cache.getServiceByCache(serviceName);
-            if (serviceList.isEmpty()) {
+            if (serviceList == null) {
                 serviceList = this.client.getChildren().forPath("/" + serviceName);
             }
             String service = serviceList.get(0);
