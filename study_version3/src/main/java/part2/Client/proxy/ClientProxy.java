@@ -1,8 +1,12 @@
 package part2.Client.proxy;
 
+import part2.Client.cache.ServiceCache;
+import part2.Client.retry.GuavaRetry;
 import part2.Client.rpcClient.RpcClient;
 import part2.Client.rpcClient.impl.NettyRpcClient;
 import part2.Client.rpcClient.impl.SimpleSocketRpcClient;
+import part2.Client.serviceCenter.ServiceCenter;
+import part2.Client.serviceCenter.impl.ZkServiceCenter;
 import part2.common.Message.RpcRequest;
 import part2.common.Message.RpcResponse;
 
@@ -18,21 +22,11 @@ import java.lang.reflect.Proxy;
 public class ClientProxy implements InvocationHandler {
 
     private RpcClient rpcClient;
+    private ServiceCenter serviceCenter;
 
-    public ClientProxy(String host, Integer port, int choose) throws InterruptedException {
-
-        switch (choose) {
-            case 0:
-                rpcClient = new NettyRpcClient();
-                break;
-            case 1:
-                rpcClient = new SimpleSocketRpcClient(host, port);
-                break;
-        }
-
-    }
     public ClientProxy() throws InterruptedException {
-        rpcClient = new NettyRpcClient();
+        serviceCenter = new ZkServiceCenter();
+        rpcClient = new NettyRpcClient(serviceCenter);
     }
 
 
@@ -44,7 +38,12 @@ public class ClientProxy implements InvocationHandler {
                 .methodName(method.getName())
                 .params(args).paramsType(method.getParameterTypes()).build();
 
-        RpcResponse rpcResponse = rpcClient.sentRequest(rpcRequest);
+        RpcResponse rpcResponse;
+        if (serviceCenter.checkRetry(rpcRequest.getInterfaceName())) {
+            rpcResponse = new GuavaRetry().sendServiceWithRetry(rpcRequest, rpcClient);
+        }else {
+            rpcResponse = rpcClient.sentRequest(rpcRequest);
+        }
 
         return rpcResponse.getData();
     }

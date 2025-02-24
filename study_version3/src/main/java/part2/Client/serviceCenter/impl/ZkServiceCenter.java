@@ -22,6 +22,7 @@ public class ZkServiceCenter implements ServiceCenter {
 
     private CuratorFramework client;
     private static final String ROOT_PATH = "MyRPC";
+    private static final String RETRY = "CanRetry";
     private ServiceCache cache;
 
     public ZkServiceCenter() throws InterruptedException {
@@ -55,6 +56,27 @@ public class ZkServiceCenter implements ServiceCenter {
 
 
         return null;
+    }
+
+    @Override
+    public boolean checkRetry(String serviceName) {
+
+        boolean canRetry = false;
+
+        try {
+            List<String> address = client.getChildren().forPath("/" + RETRY);
+            for (String s : address) {
+                if (s.equals(serviceName)) {
+                    canRetry = true;
+                    System.out.println("服务" + serviceName + "在白名单中，可以进行重试");
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return canRetry;
     }
 
     private String getServiceAddress(InetSocketAddress socketAddress) {

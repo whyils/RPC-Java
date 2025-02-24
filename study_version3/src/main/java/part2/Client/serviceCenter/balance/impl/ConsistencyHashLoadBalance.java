@@ -47,7 +47,7 @@ public class ConsistencyHashLoadBalance implements LoadBalance {
         // 如果没有找到，说明该hash比集合中所有的虚拟节点hash值都大，取第一个虚拟节点（环状）
         // 如果找到了，取第一个虚拟节点即可
         if (tailedMap.isEmpty()) {
-            key = shards.firstKey();
+            key = shards.lastKey();
         }else {
             key = tailedMap.firstKey();
         }

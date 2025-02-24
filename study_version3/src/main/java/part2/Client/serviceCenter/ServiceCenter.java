@@ -12,4 +12,7 @@ public interface ServiceCenter {
 
     InetSocketAddress serviceDiscovery(String serviceName);
 
+    // 检查当前服务是否可以重试
+    boolean checkRetry(String serviceName);
+
 }

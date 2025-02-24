@@ -19,6 +19,7 @@ public class ZkServiceRegister implements ServiceRegister {
 
     private CuratorFramework client;
     private static final String ROOT_PATH = "MyRPC";
+    private static final String RETRY = "CanRetry";
 
     public ZkServiceRegister() {
         RetryPolicy policy = new ExponentialBackoffRetry(1000, 3);
@@ -30,7 +31,7 @@ public class ZkServiceRegister implements ServiceRegister {
     }
 
     @Override
-    public void register(String serviceName, InetSocketAddress socketAddress) {
+    public void register(String serviceName, InetSocketAddress socketAddress, boolean canRetry) {
 
         try {
             if (client.checkExists().forPath("/" + serviceName) == null) {
@@ -38,6 +39,12 @@ public class ZkServiceRegister implements ServiceRegister {
             }
             String path = "/" + serviceName + "/" + getServiceAddress(socketAddress);
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+
+            if (canRetry) {
+                path = "/" + RETRY + "/" + serviceName;
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("此服务已存在");

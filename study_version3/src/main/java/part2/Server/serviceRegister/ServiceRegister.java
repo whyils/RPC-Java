@@ -10,6 +10,6 @@ import java.net.InetSocketAddress;
  */
 public interface ServiceRegister {
 
-    void register(String serviceName, InetSocketAddress socketAddress);
+    void register(String serviceName, InetSocketAddress socketAddress, boolean canRetry);
 
 }
