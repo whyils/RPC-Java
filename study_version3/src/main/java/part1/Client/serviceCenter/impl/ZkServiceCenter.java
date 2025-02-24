@@ -8,6 +8,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import part1.Client.cache.ServiceCache;
 import part1.Client.serviceCenter.ServiceCenter;
 import part1.Client.serviceCenter.ZKWatcher.WatchZK;
+import part1.Client.serviceCenter.balance.impl.ConsistencyHashLoadBalance;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -46,7 +47,7 @@ public class ZkServiceCenter implements ServiceCenter {
             if (serviceList == null) {
                 serviceList = this.client.getChildren().forPath("/" + serviceName);
             }
-            String service = serviceList.get(0);
+            String service = new ConsistencyHashLoadBalance().balance(serviceList);
             return parseAddress(service);
         } catch (Exception e) {
             e.printStackTrace();
