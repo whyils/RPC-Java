@@ -1,5 +1,7 @@
 package part2.Client.proxy;
 
+import part2.Client.circuitBreaker.CircuitBreaker;
+import part2.Client.circuitBreaker.CircuitBreakerProvider;
 import part2.Client.retry.GuavaRetry;
 import part2.Client.rpcClient.RpcClient;
 import part2.Client.rpcClient.impl.NettyRpcClient;
@@ -21,10 +23,12 @@ public class ClientProxy implements InvocationHandler {
 
     private RpcClient rpcClient;
     private ServiceCenter serviceCenter;
+    private CircuitBreakerProvider circuitBreakerProvider;
 
     public ClientProxy() throws InterruptedException {
         serviceCenter = new ZkServiceCenter();
         rpcClient = new NettyRpcClient(serviceCenter);
+        circuitBreakerProvider = new CircuitBreakerProvider();
     }
 
 
@@ -35,6 +39,13 @@ public class ClientProxy implements InvocationHandler {
                 .interfaceName(method.getDeclaringClass().getName())
                 .methodName(method.getName())
                 .params(args).paramsType(method.getParameterTypes()).build();
+
+        // 熔断器不允许访问，就返回
+        CircuitBreaker circuitBreaker = circuitBreakerProvider.getCircuitBreaker(method.getName());
+        if (!circuitBreaker.allowRequest()) {
+            System.out.println("熔断器不允许访问");
+            return new RpcResponse(500, "熔断器不允许访问", null, null);
+        }
 
         RpcResponse rpcResponse;
         if (serviceCenter.checkRetry(rpcRequest.getInterfaceName())) {

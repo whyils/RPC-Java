@@ -17,7 +17,7 @@ public class GuavaRetry {
 
         Retryer<RpcResponse> retryer = RetryerBuilder.<RpcResponse>newBuilder()
                 .retryIfException()
-                .retryIfResult(a -> Objects.equals(a.getCode(), 500))
+                .retryIfResult(a -> Objects.isNull(a) || Objects.equals(a.getCode(), 500))
                 .withWaitStrategy(WaitStrategies.fixedWait(2, TimeUnit.SECONDS))
                 .withStopStrategy(StopStrategies.stopAfterAttempt(3))
                 .withRetryListener(new RetryListener() {

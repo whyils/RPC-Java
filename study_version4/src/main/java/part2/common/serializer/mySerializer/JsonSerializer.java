@@ -35,6 +35,11 @@ public class JsonSerializer implements Serializer {
 
                 RpcResponse rpcResponse = JSONObject.parseObject(bytes, RpcResponse.class);
 
+                if (rpcResponse == null || rpcResponse.getDataType() == null || rpcResponse.getData() == null) {
+                    obj = new RpcResponse();
+                    break;
+                }
+
                 Class<?> dataType = rpcResponse.getDataType();
                 if (!dataType.isAssignableFrom(rpcResponse.getData().getClass())) {
                     rpcResponse.setData(JSONObject.toJavaObject((JSONObject)rpcResponse.getData(), dataType));
