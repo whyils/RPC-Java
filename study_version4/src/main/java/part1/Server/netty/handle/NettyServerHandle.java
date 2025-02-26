@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.AllArgsConstructor;
 import part1.Server.provider.ServiceProvider;
+import part1.Server.ratelimit.RateLimit;
+import part1.Server.ratelimit.provider.RateLimitProvider;
 import part1.common.Message.RpcRequest;
 import part1.common.Message.RpcResponse;
 
@@ -33,6 +35,14 @@ public class NettyServerHandle extends SimpleChannelInboundHandler<RpcRequest> {
     private RpcResponse getResponse(RpcRequest request) {
 
         String interfaceName = request.getInterfaceName();
+
+        RateLimitProvider rateLimitProvider = serviceProvider.getRateLimitProvider();
+        RateLimit rateLimit = rateLimitProvider.getRateLimit(interfaceName);
+        if (!rateLimit.getToken()){
+            System.out.println("服务限流！！");
+            return RpcResponse.fail();
+        }
+
         Object service = serviceProvider.getService(interfaceName);
 
         try {

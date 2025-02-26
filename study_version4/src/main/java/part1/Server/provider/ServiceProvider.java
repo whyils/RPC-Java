@@ -1,6 +1,7 @@
 package part1.Server.provider;
 
 
+import part1.Server.ratelimit.provider.RateLimitProvider;
 import part1.Server.serviceRegister.ServiceRegister;
 import part1.Server.serviceRegister.impl.ZkServiceRegister;
 
@@ -20,6 +21,7 @@ public class ServiceProvider {
     private int port;
     private String host;
     private ServiceRegister serviceRegister;
+    private RateLimitProvider rateLimitProvider;
 
     public ServiceProvider() {
         interfaceProvider = new HashMap<>();
@@ -30,6 +32,7 @@ public class ServiceProvider {
         this.host = host;
         this.serviceRegister = new ZkServiceRegister();
         this.interfaceProvider = new HashMap<>();
+        this.rateLimitProvider = new RateLimitProvider();
     }
 
     public void provideServiceInterface(Object server, boolean canRetry) {
@@ -45,6 +48,10 @@ public class ServiceProvider {
 
     public Object getService(String interfaceName) {
         return interfaceProvider.get(interfaceName);
+    }
+
+    public RateLimitProvider getRateLimitProvider() {
+        return rateLimitProvider;
     }
 
 
