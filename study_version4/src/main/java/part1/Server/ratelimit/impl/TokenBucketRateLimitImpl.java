@@ -22,7 +22,7 @@ public class TokenBucketRateLimitImpl implements RateLimit {
     }
 
     @Override
-    public boolean getToken() {
+    public synchronized boolean getToken() {
 
         // 如果有令牌的话，直接返回
         if (curCapacity > 0) {
