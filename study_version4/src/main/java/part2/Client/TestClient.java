@@ -35,9 +35,9 @@ public class TestClient {
 
             }).start();
 
-//            if (i % 30 == 0) {
-//                Thread.sleep(10000);
-//            }
+            if (i >= 30 && i % 30 == 0) {
+                Thread.sleep(10000);
+            }
 
         }
 

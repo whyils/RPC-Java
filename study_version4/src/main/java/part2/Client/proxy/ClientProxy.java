@@ -44,7 +44,7 @@ public class ClientProxy implements InvocationHandler {
         CircuitBreaker circuitBreaker = circuitBreakerProvider.getCircuitBreaker(method.getName());
         if (!circuitBreaker.allowRequest()) {
             System.out.println("熔断器不允许访问");
-            return new RpcResponse(500, "熔断器不允许访问", null, null);
+            return null;
         }
 
         RpcResponse rpcResponse;
@@ -53,6 +53,11 @@ public class ClientProxy implements InvocationHandler {
         }else {
             rpcResponse = rpcClient.sentRequest(rpcRequest);
         }
+        if (rpcResponse == null || rpcResponse.getCode() != 200) {
+            circuitBreaker.recordFailure();
+            return null;
+        }
+        circuitBreaker.recordSuccess();
 
         return rpcResponse.getData();
     }
