@@ -12,7 +12,7 @@ import com.wyl.provider.impl.UserServiceImpl;
  * @date 2025/2/8 15:15
  * @description: TODO
  */
-public class TestServer {
+public class ProviderTest {
 
     public static void main(String[] args) {
 
